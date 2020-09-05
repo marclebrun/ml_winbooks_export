@@ -2,6 +2,8 @@
 
 from odoo import api, fields, models, _
 import datetime
+from io import BytesIO
+import base64
 
 class MLWinbooksExport(models.TransientModel):
     _name = 'ml.winbooks.export'
@@ -43,6 +45,22 @@ class MLWinbooksExport(models.TransientModel):
 
         d = self.read(['date_from', 'date_to'])[0]
         print(d)
+
+        csv_data = 'Hello my darling'
+
+        self.write({
+            'data': base64.encodestring(csv_data.encode())
+        })
+
+        return {
+            'type'     : 'ir.actions.act_window',
+            'res_model': 'ml.winbooks.export',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'res_id'   : self.id,
+            'views'    : [(False, 'form')],
+            'target'   : 'new',
+        }
 
     @api.model
     def default_get(self, fields):
