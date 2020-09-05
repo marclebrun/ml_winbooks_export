@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+
+        <menuitem
+            id="menu_account_winbooks"
+            name="Winbooks (ML)"
+            parent="account.menu_finance"
+            sequence="99"
+            groups="account.group_account_manager"/>
+        
+        <menuitem
+            id="menu_account_winbooks_export"
+            name="Export"
+            action="action_account_winbooks_export"
+            parent="menu_account_winbooks"
+            sequence="1"
+            />
+        
+    </data>
+</odoo>
