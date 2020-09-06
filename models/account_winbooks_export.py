@@ -41,12 +41,18 @@ class MLWinbooksExport(models.TransientModel):
         self.ensure_one()
         self.export_filename = 'ANT.txt'
         
-        print("COUCOU")
 
         d = self.read(['date_from', 'date_to'])[0]
         print(d)
 
-        csv_data = 'Hello my darling'
+        csv_data = 'Hello my darling\n'
+        csv_data += 'How are you ?\n'
+
+        debug_export_path = '/home/marc/odoo/export_winbooks/MODULE_DEBUG.txt'
+        f = open(debug_export_path, "w")
+        f.write(csv_data)
+        f.close()
+        print("Données exportées dans le fichier \"%s\"" % debug_export_path)
 
         self.write({
             'data': base64.encodestring(csv_data.encode())
