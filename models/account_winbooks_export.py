@@ -4,6 +4,7 @@ from odoo import api, fields, models, _
 import datetime
 from io import BytesIO
 import base64
+from . import export
 
 class MLWinbooksExport(models.TransientModel):
     _name = 'ml.winbooks.export'
@@ -47,6 +48,10 @@ class MLWinbooksExport(models.TransientModel):
 
         csv_data = 'Hello my darling\n'
         csv_data += 'How are you ?\n'
+
+        exp = export.Export()
+        exp.setDates(d['date_from'], d['date_to'])
+        exp.debug()
 
         debug_export_path = '/home/marc/odoo/export_winbooks/MODULE_DEBUG.txt'
         f = open(debug_export_path, "w")
