@@ -46,6 +46,7 @@ class Export:
             move = Move()
             move.fromDictRow(row)
             move.readLines(cursor)
+            move.readTaxAmount(cursor)
             self.moves.append(move)
 
     def process(self):

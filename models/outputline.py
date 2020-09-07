@@ -31,17 +31,63 @@ class OutputLine:
         self.remindlev  = ""
         self.matchno    = ""
     
-    def fromMove(self, move):
-        self.dbkcode   = move.dbkcode
-        self.docnumber = move.docnumber
-        self.datedoc   = move.datedoc
-        self.comment   = move.partner_name
-        
-        # if ref = POS/xxxx/... force the comment
-        if move.ref:
-            if move.ref[:4] == 'POS/':
-                self.comment = 'VENTE CLIENTS DIVERS'
-    
+    def setValues(self, move, line):
+        if line.accountgl[:2] == '40':
+            self.doctype = 1
+        elif line.accountgl[:2] == '44':
+            self.doctype = 2
+        else:
+            self.doctype = 3
+
+        self.dbkcode    = move.dbkcode
+        self.dbktype    = ""
+        self.docnumber  = move.docnumber
+        self.docorder   = ""
+        self.opcode     = ""
+        self.accountgl  = line.accountgl
+        self.accountrp  = line.partner_ref
+        self.bookyear   = ""
+        self.period     = ""
+        self.date       = ""
+        self.datedoc    = move.datedoc
+        self.duedate    = ""
+        self.comment    = move.partner_name
+        self.commentext = ""
+        self.amount     = ""
+        self.amounteur  = line.amounteur
+
+        self.vatbase = 0
+        if move.dbkcode == 'NCVEN':
+            if(line.accountgl[:2] == '40'
+            or line.accountgl[:2] == '44'
+            or line.accountgl[:3] == '451'):
+                self.vatbase = move.total_tax_amount
+            if(line.accountgl[:3] == '451'
+            or line.accountgl[:3] == '411'):
+                self.vatbase = move.total_tax_amount * -1
+        else:
+            if(line.accountgl[:2] == '40'
+            or line.accountgl[:2] == '44'
+            or line.accountgl[:3] == '451'):
+                self.vatbase = move.total_tax_amount
+            if(line.accountgl[:3] == '701'
+            or line.accountgl[:3] == '702'):
+                self.vatbase = 0
+
+        if(line.accountgl[:3] == '451'):
+            self.vatcode = '211400'
+        else:
+            self.vatcode = ''
+
+        self.curramount = ""
+        self.currcode   = ""
+        self.cureurbase = ""
+        self.vattax     = ""
+        self.vatimput   = ""
+        self.currate    = ""
+        self.remindlev  = ""
+        self.matchno    = ""
+            
     def getCsvOutput(self):
         output = ""
 
