@@ -6,26 +6,15 @@ from .move import Move
 class Export:
 
     def __init__(self):
-        self.dateFrom  = datetime.date.today()
-        self.dateTo    = datetime.date.today()
-        self.moves     = []
-        self.csvOutput = ""
+        self.dateFrom = datetime.date.today()
+        self.dateTo   = datetime.date.today()
+        self.moves    = []
 
     def setDates(self, dateFrom, dateTo):
         self.dateFrom = dateFrom
         self.dateTo   = dateTo
 
-    def getCsvOutput(self):
-        return self.csvOutput
-    
-    def debug(self):
-        print("Export from %s to %s" % (self.dateFrom, self.dateTo))
-
     def readData(self, cursor):
-        self.csvOutput += "Ligne 1.\n"
-        self.csvOutput += "Ligne 2.\n"
-        self.csvOutput += "Ligne 3.\n"
-
         self.readMoves(cursor)
     
     def readMoves(self, cursor):
@@ -62,3 +51,11 @@ class Export:
             move.readLines(cursor)
             self.moves.append(move)
             print(move.id, move.name, move.date)
+
+    def getCsvOutput(self):
+        output = ""
+        output += "Ligne 1...\n"
+        output += "Ligne 2...\n"
+        output += "Ligne 3...\n"
+        return output
+    
