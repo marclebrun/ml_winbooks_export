@@ -6,7 +6,7 @@
             id="menu_account_winbooks"
             name="Winbooks (ML)"
             parent="account.menu_finance"
-            sequence="99"
+            sequence="6"
             groups="account.group_account_manager"/>
         
         <menuitem
