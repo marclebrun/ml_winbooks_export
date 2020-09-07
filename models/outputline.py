@@ -87,7 +87,12 @@ class OutputLine:
         self.currate    = ""
         self.remindlev  = ""
         self.matchno    = ""
-            
+
+        # if invoiced from Point Of Sale : force the client
+        if (move.ref and move.ref[:4] == 'POS/'):
+            self.accountrp = '400751'
+            self.comment   = 'VENTE CLIENTS DIVERS'
+        
     def getCsvOutput(self):
         output = ""
 

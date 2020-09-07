@@ -59,6 +59,11 @@ class Move:
             line.fromDictRow(row)
             self.sourceLines.append(line)
 
+        # Replace the account number in some cases
+        for sourceLine in self.sourceLines:
+            if sourceLine.accountgl == '701000':
+                sourceLine.accountgl = '700000'
+
     def readTaxAmount(self, cursor):
         self.total_tax_amount = 0.0
         cursor.execute("""
@@ -90,29 +95,33 @@ class Move:
                     outputLine = OutputLine()
                     outputLine.setValues(self, sourceLine)
                     self.outputLines.append(outputLine)
-                outputLine.amounteur += sourceLine.amounteur
+                else:
+                    outputLine.amounteur += sourceLine.amounteur
+        
+        # check if missing vatbase on lines where accountgl
+        # is 400000 or 451000
+        for line in self.outputLines:
+            if(line.accountgl in ('400000', '451000') and line.vatbase == 0.0):
+                line.vatbase = self.calcTotalSalesAmount()
 
-        return
-
-        # if invoiced from Point Of Sale : force the client
-        if (self.ref and self.ref[:4] == 'POS/'):
-            sourceLine.accountrp = '400751'
-            sourceLine.comment   = 'VENTE CLIENTS DIVERS'
-
-        for sourceLine in self.sourceLines:
-            outputLine = OutputLine()
-            outputLine.setValues(self, sourceLine)
-            if sourceLine.accountgl != current_accountgl:
-                if current_accountgl != '':
-                    outputLine.accountgl = current_accountgl
-                    outputLine.amounteur = current_amounteur
-                    self.outputLines.append(outputLine)
-                current_accountgl = sourceLine.accountgl
-                current_amounteur = 0.0
+    def calcTotalSalesAmount(self):
+        """
+        Return the total sales of all lines where accountgl
+        starts with 7
+        """
+        total = 0.0
+        for line in self.outputLines:
+            if line.accountgl[:1] == '7':
+                total += line.amounteur
+        return total * -1
 
     def getCsvOutput(self):
         output = ""
         for line in self.outputLines:
             output += line.getCsvOutput()
+            if line.accountgl == '400000':
+                if line.vatbase == 0.0:
+                    output += "NO VATBASE !!!\n"
+        # output += "\n"
         return output
     
