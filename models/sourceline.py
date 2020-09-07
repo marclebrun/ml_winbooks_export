@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-class Line:
+class SourceLine:
 
     def __init__(self):
         self.name               = None
@@ -26,6 +26,3 @@ class Line:
         self.partner_ref        = row['partner_ref']
         self.tax_line_id        = row['tax_line_id']
 
-    def getCsvOutput(self):
-        return "bigoudi\n"
-        

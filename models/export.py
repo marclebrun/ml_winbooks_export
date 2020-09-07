@@ -51,14 +51,11 @@ class Export:
     def process(self):
         for move in self.moves:
             move.process()
-            print(move.id, move.name, move.date)
 
     def getCsvOutput(self):
         output = ""
         for move in self.moves:
-            output += move.getCsvOutput()
-        output += "Ligne 1...\n"
-        output += "Ligne 2...\n"
-        output += "Ligne 3...\n"
+            # Pour l'instant, n'exporte pas les NC
+            if move.dbkcode != 'NCVEN':
+                output += move.getCsvOutput()
         return output
-    

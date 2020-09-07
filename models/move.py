@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from .line import Line
+from .sourceline import SourceLine
+from .outputline import OutputLine
 
 class Move:
 
@@ -52,12 +53,15 @@ class Move:
                 'move_id': self.id
             })
         for row in cursor.dictfetchall():
-            line = Line()
+            line = SourceLine()
             line.fromDictRow(row)
             self.sourceLines.append(line)
 
     def process(self):
         self.outputLines = []
+        outputLine = OutputLine()
+        outputLine.fromMove(self)
+        self.outputLines.append(outputLine)
 
     def getCsvOutput(self):
         output = ""
