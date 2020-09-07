@@ -47,6 +47,7 @@ class MLWinbooksExport(models.TransientModel):
         export = Export()
         export.setDates(d['date_from'], d['date_to'])
         export.readData(self.env.cr)
+        export.process()
 
         debug_export_path = '/home/marc/odoo/export_winbooks/MODULE_DEBUG.txt'
         f = open(debug_export_path, "w")

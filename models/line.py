@@ -25,3 +25,7 @@ class Line:
         self.partner_name       = row['partner_name']
         self.partner_ref        = row['partner_ref']
         self.tax_line_id        = row['tax_line_id']
+
+    def getCsvOutput(self):
+        return "bigoudi\n"
+        

@@ -14,7 +14,8 @@ class Move:
         self.datedoc      = None
         self.partner_name = None
 
-        self.lines = []
+        self.sourceLines = []
+        self.outputLines = []
 
     def fromDictRow(self, row):
         self.id           = row['id']
@@ -27,7 +28,7 @@ class Move:
         self.partner_name = row['partner_name']
 
     def readLines(self, cursor):
-        self.lines = []
+        self.sourceLines = []
         cursor.execute("""
             select
                 aml.name            as name,
@@ -53,4 +54,14 @@ class Move:
         for row in cursor.dictfetchall():
             line = Line()
             line.fromDictRow(row)
-            self.lines.append(line)
+            self.sourceLines.append(line)
+
+    def process(self):
+        self.outputLines = []
+
+    def getCsvOutput(self):
+        output = ""
+        for line in self.outputLines:
+            output += line.getCsvOutput()
+        return output
+    

@@ -15,9 +15,6 @@ class Export:
         self.dateTo   = dateTo
 
     def readData(self, cursor):
-        self.readMoves(cursor)
-    
-    def readMoves(self, cursor):
         self.moves = []
         cursor.execute("""
             select
@@ -50,10 +47,16 @@ class Export:
             move.fromDictRow(row)
             move.readLines(cursor)
             self.moves.append(move)
+
+    def process(self):
+        for move in self.moves:
+            move.process()
             print(move.id, move.name, move.date)
 
     def getCsvOutput(self):
         output = ""
+        for move in self.moves:
+            output += move.getCsvOutput()
         output += "Ligne 1...\n"
         output += "Ligne 2...\n"
         output += "Ligne 3...\n"
