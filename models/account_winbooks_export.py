@@ -4,7 +4,7 @@ from odoo import api, fields, models, _
 import datetime
 from io import BytesIO
 import base64
-from . import export
+from .export import Export
 
 class MLWinbooksExport(models.TransientModel):
     _name = 'ml.winbooks.export'
@@ -41,26 +41,22 @@ class MLWinbooksExport(models.TransientModel):
     def action_manual_export_invoice_entries(self):
         self.ensure_one()
         self.export_filename = 'ANT.txt'
-        
 
         d = self.read(['date_from', 'date_to'])[0]
-        print(d)
 
-        csv_data = 'Hello my darling\n'
-        csv_data += 'How are you ?\n'
-
-        exp = export.Export()
-        exp.setDates(d['date_from'], d['date_to'])
-        exp.debug()
+        export = Export()
+        export.setDates(d['date_from'], d['date_to'])
+        export.debug()
+        export.readData(self.env.cr)
 
         debug_export_path = '/home/marc/odoo/export_winbooks/MODULE_DEBUG.txt'
         f = open(debug_export_path, "w")
-        f.write(csv_data)
+        f.write(export.getCsvOutput())
         f.close()
         print("Données exportées dans le fichier \"%s\"" % debug_export_path)
 
         self.write({
-            'data': base64.encodestring(csv_data.encode())
+            'data': base64.encodestring(export.getCsvOutput().encode())
         })
 
         return {
