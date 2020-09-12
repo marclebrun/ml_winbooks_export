@@ -63,8 +63,17 @@ class Move:
         for sourceLine in self.sourceLines:
             if sourceLine.accountgl == '701000':
                 sourceLine.accountgl = '700000'
+            # Discount amounts are part of the sales amount,
+            # therefore we include those lines on the 700000
+            # account.
+            if sourceLine.accountgl == '653000':
+                sourceLine.accountgl = '700000'
 
     def readTaxAmount(self, cursor):
+        """
+        Returns the total sales amount of lines on which
+        the 21% VAT is applied.
+        """
         self.total_tax_amount = 0.0
         cursor.execute("""
             select tax_base_amount
@@ -98,16 +107,16 @@ class Move:
                 else:
                     outputLine.amounteur += sourceLine.amounteur
         
-        # check if missing vatbase on lines where accountgl
-        # is 400000 or 451000
+        # always calculate the vatbase for lines 400000 and 451000 equal
+        # to the total sales amount of the move.
         for line in self.outputLines:
-            if(line.accountgl in ('400000', '451000') and line.vatbase == 0.0):
+            if(line.accountgl in ('400000', '451000')):
                 line.vatbase = self.calcTotalSalesAmount()
 
     def calcTotalSalesAmount(self):
         """
-        Return the total sales of all lines where accountgl
-        starts with 7
+        Returns the total sales of all output lines where
+        accountgl starts with 7.
         """
         total = 0.0
         for line in self.outputLines:
@@ -119,9 +128,4 @@ class Move:
         output = ""
         for line in self.outputLines:
             output += line.getCsvOutput()
-            if line.accountgl == '400000':
-                if line.vatbase == 0.0:
-                    output += "NO VATBASE !!!\n"
-        # output += "\n"
         return output
-    

@@ -57,6 +57,13 @@ class OutputLine:
         self.amounteur  = line.amounteur
 
         self.vatbase = 0
+        #
+        #*******************************************
+        # TODO: These lines are now useless, as the
+        # vatbase is calculated on the total sales
+        # amount of the move.
+        #*******************************************
+        #
         if move.dbkcode == 'NCVEN':
             if(line.accountgl[:2] == '40'
             or line.accountgl[:2] == '44'
@@ -98,14 +105,6 @@ class OutputLine:
 
         s_amounteur = "%.2f" % self.amounteur
         s_amounteur = s_amounteur.rstrip('0').rstrip('.')
-
-        # if self.vatbase is None:
-        #     s_vatbase = ""
-        # else:
-        #     if self.vatbase == 0.0:
-        #         s_vatbase = ""
-        #     else:
-        #         s_vatbase = "%.2f" % self.vatbase
 
         s_vatbase = ("%.2f" % self.vatbase) or "0.00"
         if s_vatbase == "0.00":

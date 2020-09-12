@@ -56,7 +56,5 @@ class Export:
     def getCsvOutput(self):
         output = ""
         for move in self.moves:
-            # Pour l'instant, n'exporte pas les NC
-            if move.dbkcode != 'NCVEN':
-                output += move.getCsvOutput()
+            output += move.getCsvOutput()
         return output

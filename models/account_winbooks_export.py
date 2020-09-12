@@ -49,6 +49,7 @@ class MLWinbooksExport(models.TransientModel):
         export.readData(self.env.cr)
         export.process()
 
+        # FICHIER POUR DEBUG
         debug_export_path = '/home/marc/odoo/export_winbooks/MODULE_DEBUG.txt'
         f = open(debug_export_path, "w")
         f.write(export.getCsvOutput())
