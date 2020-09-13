@@ -13,6 +13,8 @@ class Move:
         self.docnumber    = None
         self.ref          = None
         self.datedoc      = None
+
+        self.partner_ref  = None
         self.partner_name = None
 
         self.total_tax_amount = 0.0
@@ -28,7 +30,6 @@ class Move:
         self.docnumber    = row['docnumber']
         self.ref          = row['ref']
         self.datedoc      = row['datedoc']
-        self.partner_name = row['partner_name']
 
     def readLines(self, cursor):
         self.sourceLines = []
@@ -58,6 +59,11 @@ class Move:
             line = SourceLine()
             line.fromDictRow(row)
             self.sourceLines.append(line)
+
+            # initialize partner info if not done yet
+            if(self.partner_ref is None or self.partner_name is None):
+                self.partner_ref  = row['partner_ref']
+                self.partner_name = row['partner_name']
 
         # Replace the account number in some cases
         for sourceLine in self.sourceLines:
@@ -92,17 +98,16 @@ class Move:
     def process(self):
         self.outputLines = []
 
+        # add one output line for each distinct accountgl found
+        # in the source lines.
         outputLine = None
-
         for sourceLine in self.sourceLines:
             if outputLine is None:
-                outputLine = OutputLine()
-                outputLine.setValues(self, sourceLine)
+                outputLine = self.makeNewLine(sourceLine)
                 self.outputLines.append(outputLine)
             else:
                 if sourceLine.accountgl != outputLine.accountgl:
-                    outputLine = OutputLine()
-                    outputLine.setValues(self, sourceLine)
+                    outputLine = self.makeNewLine(sourceLine)
                     self.outputLines.append(outputLine)
                 else:
                     outputLine.amounteur += sourceLine.amounteur
@@ -119,7 +124,52 @@ class Move:
             if line.accountgl == '451000':
                 taxLineOk = True
         if not taxLineOk:
-            self.addTaxLine()
+            outputLine = self.makeTaxLine()
+            self.outputLines.append(outputLine)
+
+    def makeNewLine(self, sourceLine):
+        outputLine = OutputLine()
+        
+        if sourceLine.accountgl[:2] == '40':
+            outputLine.doctype = 1
+        elif sourceLine.accountgl[:2] == '44':
+            outputLine.doctype = 2
+        else:
+            outputLine.doctype = 3
+        
+        outputLine.dbkcode   = self.dbkcode
+        outputLine.docnumber = self.docnumber
+        outputLine.accountgl = sourceLine.accountgl
+        outputLine.accountrp = self.partner_ref
+        outputLine.datedoc   = self.datedoc
+        outputLine.comment   = self.partner_name
+        outputLine.amounteur = sourceLine.amounteur
+        outputLine.vatbase   = 0
+
+        if(sourceLine.accountgl[:3] == '451'):
+            outputLine.vatcode = '211400'
+        else:
+            outputLine.vatcode = ''
+        
+        # if invoiced from Point Of Sale, always force the client
+        if (self.ref and self.ref[:4] == 'POS/'):
+            outputLine.accountrp = '400751'
+            outputLine.comment   = 'VENTE CLIENTS DIVERS'
+
+        return outputLine
+
+    def makeTaxLine(self):
+        outputLine = OutputLine()
+        outputLine.doctype   = 4444
+        outputLine.dbkcode   = self.dbkcode
+        outputLine.docnumber = self.docnumber
+        outputLine.accountgl = ""
+        outputLine.accountrp = self.partner_ref
+        outputLine.datedoc   = self.datedoc
+        outputLine.comment   = self.partner_name
+        outputLine.amounteur = 9999
+        outputLine.vatbase   = 0
+        return outputLine
 
     def calcTotalSalesAmount(self):
         """
@@ -132,11 +182,6 @@ class Move:
                 total += line.amounteur
         return total * -1
     
-    def addTaxLine(self):
-        outputLine = OutputLine()
-        outputLine.doctype = 4
-        self.outputLines.append(outputLine)
-
     def getCsvOutput(self):
         output = ""
         for line in self.outputLines:

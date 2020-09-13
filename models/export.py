@@ -30,8 +30,7 @@ class Export:
                     when am.name like 'NC%%'  then replace(substr(am.name, 4, 11), '/', '')
                 end as docnumber,
                 am.ref,
-                to_char(am.date, 'YYYYMMDD') as datedoc,
-                p.name as partner_name
+                to_char(am.date, 'YYYYMMDD') as datedoc
             from account_move am
             left join res_partner p on p.id = am.partner_id
             where (am.name like 'FAC%%' or am.name like 'NC%%')
