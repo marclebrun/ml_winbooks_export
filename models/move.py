@@ -112,6 +112,14 @@ class Move:
         for line in self.outputLines:
             if(line.accountgl in ('400000', '451000')):
                 line.vatbase = self.calcTotalSalesAmount()
+        
+        # check if the tax line is present (account 451000), add it if needed.
+        taxLineOk = False
+        for line in self.outputLines:
+            if line.accountgl == '451000':
+                taxLineOk = True
+        if not taxLineOk:
+            self.addTaxLine()
 
     def calcTotalSalesAmount(self):
         """
@@ -123,6 +131,11 @@ class Move:
             if line.accountgl[:1] == '7':
                 total += line.amounteur
         return total * -1
+    
+    def addTaxLine(self):
+        outputLine = OutputLine()
+        outputLine.doctype = 4
+        self.outputLines.append(outputLine)
 
     def getCsvOutput(self):
         output = ""
