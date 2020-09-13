@@ -167,8 +167,8 @@ class Move:
         outputLine.accountrp = self.partner_ref
         outputLine.datedoc   = self.datedoc
         outputLine.comment   = self.partner_name
-        outputLine.amounteur = 9999
-        outputLine.vatbase   = 0
+        outputLine.amounteur = 0
+        outputLine.vatbase   = self.calcTotalSalesAmount()
         return outputLine
 
     def calcTotalSalesAmount(self):
