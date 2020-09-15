@@ -3,6 +3,7 @@
 class SourceLine:
 
     def __init__(self):
+        self.id                 = None
         self.name               = None
         self.amounteur          = None
         self.accountgl          = None
@@ -13,8 +14,10 @@ class SourceLine:
         self.partner_name       = None
         self.partner_ref        = None
         self.tax_line_id        = None
+        self.tax_ids            = []
     
     def fromDictRow(self, row):
+        self.id                 = row['id']
         self.name               = row['name']
         self.amounteur          = row['amounteur']
         self.accountgl          = row['accountgl']
@@ -25,4 +28,3 @@ class SourceLine:
         self.partner_name       = row['partner_name']
         self.partner_ref        = row['partner_ref']
         self.tax_line_id        = row['tax_line_id']
-

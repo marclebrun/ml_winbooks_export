@@ -35,6 +35,7 @@ class Move:
         self.sourceLines = []
         cursor.execute("""
             select
+                aml.id              as id,
                 aml.name            as name,
                 aml.balance         as amounteur,
                 aa.code             as accountgl,
@@ -74,6 +75,20 @@ class Move:
             # account.
             if sourceLine.accountgl == '653000':
                 sourceLine.accountgl = '700000'
+        
+        # Read the taxex ids applied to each line
+        for sourceLine in self.sourceLines:
+            sourceLine.tax_ids = []
+            cursor.execute("""
+                select account_tax_id
+                from account_move_line_account_tax_rel
+                where account_move_line_id = %(aml_id)s
+                """,
+                {
+                    'aml_id': sourceLine.id
+                })
+            for row in cursor.dictfetchall():
+                sourceLine.tax_ids.append(row['account_tax_id'])
 
     def readTaxAmount(self, cursor):
         """
@@ -118,13 +133,21 @@ class Move:
             if(line.accountgl in ('400000', '451000')):
                 line.vatbase = self.calcTotalSalesAmount()
         
-        # check if the tax line is present (account 451000), add it if needed.
-        taxLineOk = False
-        for line in self.outputLines:
-            if line.accountgl == '451000':
-                taxLineOk = True
-        if not taxLineOk:
-            outputLine = self.makeTaxLine()
+        # Add missing tax line.
+        # For each line with 0% tax, add its sales amount to the
+        # account 451000.
+        vatbase = 0
+        vatcode = ""
+        for line in self.sourceLines:
+            for tax_id in line.tax_ids:
+                if tax_id == 11:
+                    vatbase += line.amounteur
+                    vatcode = "221000"
+                if tax_id == 13:
+                    vatbase += line.amounteur
+                    vatcode = "214000"
+        if vatcode != "":
+            outputLine = self.makeTaxLine(vatbase, vatcode)
             self.outputLines.append(outputLine)
 
     def makeNewLine(self, sourceLine):
@@ -158,9 +181,9 @@ class Move:
 
         return outputLine
 
-    def makeTaxLine(self):
+    def makeTaxLine(self, vatbase, vatcode):
         outputLine = OutputLine()
-        outputLine.doctype   = 4444
+        outputLine.doctype   = 4
         outputLine.dbkcode   = self.dbkcode
         outputLine.docnumber = self.docnumber
         outputLine.accountgl = ""
@@ -168,7 +191,8 @@ class Move:
         outputLine.datedoc   = self.datedoc
         outputLine.comment   = self.partner_name
         outputLine.amounteur = 0
-        outputLine.vatbase   = self.calcTotalSalesAmount()
+        outputLine.vatbase   = vatbase
+        outputLine.vatcode   = vatcode
         return outputLine
 
     def calcTotalSalesAmount(self):
