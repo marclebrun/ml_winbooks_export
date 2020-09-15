@@ -22,6 +22,8 @@ class Move:
         self.sourceLines = []
         self.outputLines = []
 
+        self.debugMode = False
+
     def fromDictRow(self, row):
         self.id           = row['id']
         self.dbkcode      = row['dbkcode']
@@ -112,6 +114,16 @@ class Move:
 
     def process(self):
         self.outputLines = []
+
+        # if debug, display each source line with its information
+        if self.debugMode:
+            print("%s :" % self.name)
+            for sourceLine in self.sourceLines:
+                print("  %s %10.2f %s" % (
+                    sourceLine.accountgl,
+                    sourceLine.amounteur,
+                    ",".join([str(x) for x in sourceLine.tax_ids])
+                ))
 
         # add one output line for each distinct accountgl found
         # in the source lines.
