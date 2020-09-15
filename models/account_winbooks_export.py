@@ -40,21 +40,19 @@ class MLWinbooksExport(models.TransientModel):
 
     def action_manual_export_invoice_entries(self):
         self.ensure_one()
-        self.export_filename = 'ANT.txt'
 
         d = self.read(['date_from', 'date_to'])[0]
+
+        self.export_filename  = 'ACT_ML_'
+        self.export_filename += d['date_from'].strftime("%Y%m%d")
+        self.export_filename += '_'
+        self.export_filename += d['date_to'].strftime("%Y%m%d")
+        self.export_filename += '.txt'
 
         export = Export()
         export.setDates(d['date_from'], d['date_to'])
         export.readData(self.env.cr)
         export.process()
-
-        # FICHIER POUR DEBUG
-        debug_export_path = '/home/marc/odoo/export_winbooks/MODULE_DEBUG.txt'
-        f = open(debug_export_path, "w")
-        f.write(export.getCsvOutput())
-        f.close()
-        print("Données exportées dans le fichier \"%s\"" % debug_export_path)
 
         self.write({
             'data': base64.encodestring(export.getCsvOutput().encode())
