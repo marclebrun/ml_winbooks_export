@@ -158,6 +158,9 @@ class Move:
                 if tax_id == 13:
                     vatbase += line.amounteur
                     vatcode = "214000"
+                if tax_id == 157:
+                    vatbase += line.amounteur
+                    vatcode = "211100"
         if vatcode != "":
             outputLine = self.makeTaxLine(vatbase, vatcode)
             self.outputLines.append(outputLine)
