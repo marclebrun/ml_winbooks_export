@@ -3,6 +3,8 @@
 from .sourceline import SourceLine
 from .outputline import OutputLine
 
+DEBUG = False
+
 class Move:
 
     def __init__(self):
@@ -21,8 +23,6 @@ class Move:
 
         self.sourceLines = []
         self.outputLines = []
-
-        self.debugMode = False
 
     def fromDictRow(self, row):
         self.id           = row['id']
@@ -116,7 +116,7 @@ class Move:
         self.outputLines = []
 
         # if debug, display each source line with its information
-        if self.debugMode:
+        if DEBUG:
             print("%s :" % self.name)
             for sourceLine in self.sourceLines:
                 print("  %s %10.2f %s" % (
