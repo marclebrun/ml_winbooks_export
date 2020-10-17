@@ -4,7 +4,7 @@ from odoo import api, fields, models, _
 import datetime
 from io import BytesIO
 import base64
-from .export import Export
+from ..classes.export import Export
 
 class MLWinbooksExport(models.TransientModel):
     _name = 'ml.winbooks.export'
