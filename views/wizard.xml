@@ -29,6 +29,7 @@
                         <button
                             name="action_manual_export_invoice_entries_debug"
                             string="Invoice Entries (Debug Mode)"
+                            groups="base.group_no_one"
                             type="object" class="oe_highlight"/>
                         <button string="Close" special="cancel" />
                     </footer>
