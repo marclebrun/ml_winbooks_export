@@ -57,3 +57,10 @@ class Export:
         for move in self.moves:
             output += move.getCsvOutput()
         return output
+
+    def getDebugOutput(self):
+        output = ""
+        for move in self.moves:
+            output += move.getDebugOutput()
+        return output
+

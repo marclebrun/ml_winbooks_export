@@ -68,6 +68,36 @@ class MLWinbooksExport(models.TransientModel):
             'target'   : 'new',
         }
 
+    def action_manual_export_invoice_entries_debug(self):
+        self.ensure_one()
+
+        d = self.read(['date_from', 'date_to'])[0]
+
+        self.export_filename  = 'ACT_ML_'
+        self.export_filename += d['date_from'].strftime("%Y%m%d")
+        self.export_filename += '_'
+        self.export_filename += d['date_to'].strftime("%Y%m%d")
+        self.export_filename += '_DEBUG.txt'
+
+        export = Export()
+        export.setDates(d['date_from'], d['date_to'])
+        export.readData(self.env.cr)
+        export.process()
+
+        self.write({
+            'data': base64.encodestring(export.getDebugOutput().encode())
+        })
+
+        return {
+            'type'     : 'ir.actions.act_window',
+            'res_model': 'ml.winbooks.export',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'res_id'   : self.id,
+            'views'    : [(False, 'form')],
+            'target'   : 'new',
+        }
+
     @api.model
     def default_get(self, fields):
         res = super().default_get(fields)

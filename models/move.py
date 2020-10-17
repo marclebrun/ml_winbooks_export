@@ -226,3 +226,41 @@ class Move:
         for line in self.outputLines:
             output += line.getCsvOutput()
         return output
+
+    def getDebugOutput(self):
+        output = "%s/%s\r\n" % (self.dbkcode, self.docnumber)
+
+        amount_balance = 0.0
+        vatbase_balance = 0.0
+        for line in self.outputLines:
+
+            amount_balance += line.amounteur
+
+            if line.doctype == 1:
+                vatbase_balance += line.vatbase
+            if line.doctype == 3:
+                if line.accountgl != '451000':
+                    vatbase_balance += line.vatbase
+                if line.accountgl[:1] == '7':
+                    vatbase_balance += line.amounteur
+            if line.doctype == 4:
+                vatbase_balance -= line.vatbase
+
+            output += "    %1s %-10s : %10.2f / %10.2f  ==>>  %10.2f / %10.2f\r\n" % (
+                line.doctype,
+                line.accountgl,
+                line.amounteur,
+                line.vatbase,
+                amount_balance,
+                vatbase_balance
+            )
+
+        output += "    %12s :                          ==>>  %10.2f / %10.2f => %s\r\n" % (
+            "BALANCES",
+            amount_balance,
+            vatbase_balance,
+            "Ok" if(abs(amount_balance) < 0.001 and abs(vatbase_balance) < 0.001) else "ERROR"
+        )
+
+        output += "\r\n"
+        return output

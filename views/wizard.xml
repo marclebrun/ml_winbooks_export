@@ -22,7 +22,14 @@
                     	<field name="data" filename="export_filename"/>
                 	</group>
                     <footer>
-                        <button name="action_manual_export_invoice_entries" string="Invoice Entries" type="object" class="oe_highlight"/>
+                        <button
+                            name="action_manual_export_invoice_entries"
+                            string="Invoice Entries"
+                            type="object" class="oe_highlight"/>
+                        <button
+                            name="action_manual_export_invoice_entries_debug"
+                            string="Invoice Entries (Debug Mode)"
+                            type="object" class="oe_highlight"/>
                         <button string="Close" special="cancel" />
                     </footer>
                 </form>
